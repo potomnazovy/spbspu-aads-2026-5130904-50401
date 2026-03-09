@@ -309,6 +309,16 @@ namespace vasyakin
     return *this;
   }
 
+  template< class T >
+  List< T >::List(const T& value):
+    size(1)
+  {
+    fake_node = new Node< T >(T{});
+    Node< T >* head = new Node< T >(value);
+    head->next = fake_node;
+    fake_node->next = head;
+  }
+
 }
 
 #endif
