@@ -117,4 +117,43 @@ BOOST_AUTO_TEST_CASE(MoveAssign)
   BOOST_CHECK_EQUAL(moved.get_size(), 2);
 }
 
+BOOST_AUTO_TEST_CASE(EraseTest)
+{
+  vasyakin::List< int > list;
+  list.push_back(1);
+  list.push_back(2);
+  list.push_back(3);
+  list.erase(list.get_fake());
+  BOOST_CHECK_EQUAL(list.get_size(), 2);
+  BOOST_CHECK_EQUAL(*list.begin(), 2);
+  auto it = list.begin();
+  for (size_t i = 0; i < list.get_size() - 2; ++i)
+  {
+    ++it;
+  }
+  list.erase(it.get_ptr());
+  BOOST_CHECK_EQUAL(list.get_size(), 1);
+  BOOST_CHECK_EQUAL(*list.begin(), 2);
+  list.erase(list.get_fake());
+  BOOST_CHECK_EQUAL(list.get_size(), 0);
+  BOOST_CHECK(list.begin() == list.end());
+  list.erase(list.get_fake());
+  BOOST_CHECK_EQUAL(list.get_size(), 0);
+}
+BOOST_AUTO_TEST_CASE(ClearTest)
+{
+  vasyakin::List< int > list;
+  list.push_back(1);
+  list.push_back(2);
+  list.push_back(3);
+  list.clear();
+  BOOST_CHECK_EQUAL(list.get_size(), 0);
+  BOOST_CHECK(list.begin() == list.end());
+  list.clear();
+  BOOST_CHECK_EQUAL(list.get_size(), 0);
+  list.push_back(42);
+  BOOST_CHECK_EQUAL(list.get_size(), 1);
+  BOOST_CHECK_EQUAL(*list.begin(), 42);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
