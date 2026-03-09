@@ -196,6 +196,12 @@ namespace vasyakin
     return ptr != other.ptr;
   }
 
+  template< class T >
+  const Node< T >* LCIter< T >::get_ptr() const
+  {
+    return ptr;
+  }
+
 }
 
 #endif
