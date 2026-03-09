@@ -97,6 +97,11 @@ namespace vasyakin
     void clear();
   };
   
+  template< class T >
+  LIter< T >::LIter(Node< T >* p):
+    ptr(p)
+  {}
+
 }
 
 #endif
