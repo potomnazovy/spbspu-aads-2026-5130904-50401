@@ -17,4 +17,40 @@ BOOST_AUTO_TEST_CASE(ValConstructTest)
   BOOST_CHECK_EQUAL(*list.begin(), 52);
 }
 
+BOOST_AUTO_TEST_CASE(DestructEmptyList)
+{
+  vasyakin::List< int > list;
+}
+BOOST_AUTO_TEST_CASE(DestructSingleElem)
+{
+  vasyakin::List< int > list(52);
+  BOOST_CHECK_EQUAL(list.get_size(), 1);
+}
+BOOST_AUTO_TEST_CASE(DestructMultElem)
+{
+  vasyakin::List< int > list;
+  for (size_t i = 0; i < 10; ++i)
+  {
+    list.push_back(i);
+  }
+  BOOST_CHECK_EQUAL(list.get_size(), 10);
+}
+BOOST_AUTO_TEST_CASE(DestructAfterCopy)
+{
+  vasyakin::List< int > list;
+  list.push_back(1);
+  list.push_back(2);
+  vasyakin::List< int > copy(list);
+  BOOST_CHECK_EQUAL(list.get_size(), 2);
+  BOOST_CHECK_EQUAL(copy.get_size(), 2);
+}
+BOOST_AUTO_TEST_CASE(DestructAfterMove)
+{
+  vasyakin::List< int > list;
+  list.push_back(52);
+  vasyakin::List< int > moved(std::move(list));
+  BOOST_CHECK_EQUAL(list.get_size(), 0);
+  BOOST_CHECK_EQUAL(moved.get_size(), 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
