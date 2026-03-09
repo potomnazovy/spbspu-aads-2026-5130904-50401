@@ -138,5 +138,18 @@ int main()
       sums.push_back(sum);
     }
 
+    bool first = true;
+    for (auto sit = sums.begin(); sit != sums.end(); ++sit)
+    {
+      if (!first)
+      {
+        std::cout << " ";
+      }
+      std::cout << *sit;
+      first = false;
+    }
+    std::cout << '\n';
+  }
+
   return 0;
 }
