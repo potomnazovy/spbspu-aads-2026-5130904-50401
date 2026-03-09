@@ -367,6 +367,41 @@ namespace vasyakin
     return newNode;
   }
 
+  template< class T >
+  LIter< T > List< T >::begin()
+  {
+    return LIter< T >(fake_node->next);
+  }
+
+  template< class T >
+  LIter< T > List< T >::end()
+  {
+    return LIter< T >(fake_node);
+  }
+
+  template< class T >
+  LCIter< T > List< T >::begin() const
+  {
+    return LCIter< T >(fake_node->next);
+  }
+
+  template< class T >
+  LCIter< T > List< T >::end() const
+  {
+    return LCIter< T >(fake_node);
+  }
+
+  template< class T >
+  LCIter< T > List< T >::cbegin() const
+  {
+    return LCIter< T >(fake_node->next);
+  }
+
+  template< class T >
+  LCIter< T > List< T >::cend() const
+  {
+    return LCIter< T >(fake_node);
+  }
 
 }
 
