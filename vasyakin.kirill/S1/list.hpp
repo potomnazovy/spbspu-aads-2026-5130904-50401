@@ -129,6 +129,17 @@ namespace vasyakin
     return tmp;
   }
 
+  template< class T >
+  bool LIter< T >::operator==(const LIter& other) const
+  {
+    return ptr == other.ptr;
+  }
+
+  template< class T >
+  bool LIter< T >::operator!=(const LIter& other) const
+  {
+    return ptr != other.ptr;
+  }
 
 }
 
