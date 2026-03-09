@@ -49,6 +49,20 @@ namespace vasyakin
     const Node< T >* get_ptr() const;
   };
 
+  template< class T >
+  class Node
+  {
+  private:
+    T val;
+    Node< T >* next;
+    friend class List< T >;
+    friend class LIter< T >;
+    friend class LCIter< T >;
+
+  public:
+    explicit Node(const T& value);
+  };
+
 }
 
 #endif
