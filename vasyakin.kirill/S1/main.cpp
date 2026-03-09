@@ -60,5 +60,43 @@ int main()
     }
   }
 
+  vasyakin::List< vasyakin::List< int > > transposed;
+  vasyakin::Node< vasyakin::List< int > >* last_trans = nullptr;
+  bool hasNumbers = false;
+
+  for (size_t pos = 0; pos < max_len; ++pos)
+  {
+    vasyakin::List< int > new_seq;
+
+    for (auto sit = sequences.cbegin(); sit != sequences.cend(); ++sit)
+    {
+      auto nit = sit->second.cbegin();
+      size_t curr = 0;
+      while (curr < pos && nit != sit->second.cend())
+      {
+        ++curr;
+        ++nit;
+      }
+
+      if (nit != sit->second.cend())
+      {
+        new_seq.push_back(*nit);
+        hasNumbers = true;
+      }
+    }
+
+    if (new_seq.begin() != new_seq.end())
+    {
+      if (last_trans == nullptr)
+      {
+        last_trans = transposed.insert(transposed.get_fake(), std::move(new_seq));
+      }
+      else
+      {
+        last_trans = transposed.insert(last_trans, std::move(new_seq));
+      }
+    }
+  }
+
   return 0;
 }
