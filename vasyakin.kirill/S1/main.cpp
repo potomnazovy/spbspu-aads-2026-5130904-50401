@@ -150,7 +150,6 @@ int main()
     }
     std::cout << '\n';
   }
-
   else
   {
     std::cout << "0\n";
