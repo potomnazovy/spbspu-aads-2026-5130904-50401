@@ -115,6 +115,28 @@ int main()
       std::cout << '\n';
     }
 
+    vasyakin::List< int > sums;
+    for (auto tit = transposed.cbegin(); tit != transposed.cend(); ++tit)
+    {
+      int sum = 0;
+      try
+      {
+        for (auto nit = tit->cbegin(); nit != tit->cend(); ++nit)
+        {
+          if (sum > vasyakin::MAX - *nit)
+          {
+            throw std::overflow_error("Sum overflow");
+          }
+          sum += *nit;
+        }
+      }
+      catch(std::overflow_error& e)
+      {
+        std::cerr << e.what() << "\n";
+        return 1;
+      }
+      sums.push_back(sum);
+    }
 
   return 0;
 }
