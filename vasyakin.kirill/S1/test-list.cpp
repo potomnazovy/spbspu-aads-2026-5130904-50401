@@ -21,11 +21,13 @@ BOOST_AUTO_TEST_CASE(DestructEmptyList)
 {
   vasyakin::List< int > list;
 }
+
 BOOST_AUTO_TEST_CASE(DestructSingleElem)
 {
   vasyakin::List< int > list(52);
   BOOST_CHECK_EQUAL(list.get_size(), 1);
 }
+
 BOOST_AUTO_TEST_CASE(DestructMultElem)
 {
   vasyakin::List< int > list;
@@ -35,6 +37,7 @@ BOOST_AUTO_TEST_CASE(DestructMultElem)
   }
   BOOST_CHECK_EQUAL(list.get_size(), 10);
 }
+
 BOOST_AUTO_TEST_CASE(DestructAfterCopy)
 {
   vasyakin::List< int > list;
@@ -44,6 +47,7 @@ BOOST_AUTO_TEST_CASE(DestructAfterCopy)
   BOOST_CHECK_EQUAL(list.get_size(), 2);
   BOOST_CHECK_EQUAL(copy.get_size(), 2);
 }
+
 BOOST_AUTO_TEST_CASE(DestructAfterMove)
 {
   vasyakin::List< int > list;
@@ -70,6 +74,7 @@ BOOST_AUTO_TEST_CASE(CopyConstruct)
   ++it;
   BOOST_CHECK_EQUAL(*it, 52);
 }
+
 BOOST_AUTO_TEST_CASE(MoveConstruct)
 {
   vasyakin::List< int > list;
@@ -104,6 +109,7 @@ BOOST_AUTO_TEST_CASE(CopyAssign)
   list1 = list1;
   BOOST_CHECK_EQUAL(list1.get_size(), 2);
 }
+
 BOOST_AUTO_TEST_CASE(MoveAssign)
 {
   vasyakin::List< int > list;
@@ -140,6 +146,7 @@ BOOST_AUTO_TEST_CASE(EraseTest)
   list.erase(list.get_fake());
   BOOST_CHECK_EQUAL(list.get_size(), 0);
 }
+
 BOOST_AUTO_TEST_CASE(ClearTest)
 {
   vasyakin::List< int > list;
@@ -178,6 +185,7 @@ BOOST_AUTO_TEST_CASE(PushBackTest)
   BOOST_CHECK_EQUAL(list.get_size(), 1);
   BOOST_CHECK_EQUAL(*list.begin(), 42);
 }
+
 BOOST_AUTO_TEST_CASE(InsertTest)
 {
   vasyakin::List< int > list;
@@ -189,6 +197,39 @@ BOOST_AUTO_TEST_CASE(InsertTest)
   ++it;
   BOOST_CHECK_EQUAL(*it, 1);
   BOOST_CHECK_EQUAL(list.get_size(), 2);
+}
+
+BOOST_AUTO_TEST_CASE(SwapTest)
+{
+  vasyakin::List< int > list1;
+  list1.push_back(1);
+  list1.push_back(2);
+  vasyakin::List< int > list2;
+  list2.push_back(10);
+  list1.swap(list2);
+  BOOST_CHECK_EQUAL(list1.get_size(), 1);
+  BOOST_CHECK_EQUAL(*list1.begin(), 10);
+  BOOST_CHECK_EQUAL(list2.get_size(), 2);
+  BOOST_CHECK_EQUAL(*list2.begin(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(ConstIteratorTest)
+{
+  vasyakin::List< int > list;
+  list.push_back(10);
+  list.push_back(20);
+  const vasyakin::List< int >& const_list = list;
+  auto cit = const_list.cbegin();
+  BOOST_CHECK_EQUAL(*cit, 10);
+  ++cit;
+  BOOST_CHECK_EQUAL(*cit, 20);
+  ++cit;
+  BOOST_CHECK(cit == const_list.cend());
+  BOOST_CHECK(const_list.cbegin() != const_list.cend());
+  auto cit2 = const_list.begin();
+  BOOST_CHECK_EQUAL(*cit2, 10);
+  vasyakin::List< int > empty;
+  BOOST_CHECK(empty.cbegin() == empty.cend());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
