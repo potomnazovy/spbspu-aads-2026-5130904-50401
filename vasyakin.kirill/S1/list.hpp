@@ -147,6 +147,16 @@ namespace vasyakin
     return ptr;
   }
 
+  template< class T >
+  LCIter< T >::LCIter(const Node< T >* p):
+    ptr(p)
+  {}
+
+  template< class T >
+  LCIter< T >::LCIter(const LIter< T >& it):
+    ptr(it.ptr)
+  {}
+
 }
 
 #endif
