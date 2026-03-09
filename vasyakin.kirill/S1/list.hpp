@@ -113,6 +113,22 @@ namespace vasyakin
   {
     return &(ptr->val);
   }
+  
+  template< class T >
+  LIter< T >& LIter< T >::operator++()
+  {
+    ptr = ptr->next;
+    return *this;
+  }
+
+  template< class T >
+  LIter< T > LIter< T >::operator++(int)
+  {
+    LIter< T > tmp = *this;
+    ptr = ptr->next;
+    return tmp;
+  }
+
 
 }
 
