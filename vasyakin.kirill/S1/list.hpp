@@ -209,6 +209,14 @@ namespace vasyakin
   {}
 
 
+  template< class T >
+  List< T >::List():
+    size(0)
+  {
+    fake_node = new Node< T >(T{});
+    fake_node->next = fake_node;
+  }
+
 }
 
 #endif
