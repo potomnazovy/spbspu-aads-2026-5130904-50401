@@ -98,5 +98,23 @@ int main()
     }
   }
 
+  if (hasNumbers)
+  {
+    for (auto tit = transposed.begin(); tit != transposed.end(); ++tit)
+    {
+      bool first = true;
+      for (auto nit = tit->cbegin(); nit != tit->cend(); ++nit)
+      {
+        if (!first)
+        {
+          std::cout << " ";
+        }
+        std::cout << *nit;
+        first = false;
+      }
+      std::cout << '\n';
+    }
+
+
   return 0;
 }
