@@ -352,6 +352,21 @@ namespace vasyakin
     return h;
   }
 
+  template< class T >
+  Node< T >* List< T >::push_back(const T& value)
+  {
+    Node< T >* newNode = new Node< T >(value);
+    Node< T >* last = fake_node;
+    while (last->next != fake_node)
+    {
+      last = last->next;
+    }
+    newNode->next = fake_node;
+    last->next = newNode;
+    ++size;
+    return newNode;
+  }
+
 
 }
 
