@@ -36,5 +36,29 @@ int main()
     return 0;
   }
 
+  auto seq_it = sequences.begin();
+  std::cout << seq_it->first;
+  ++seq_it;
+  while (seq_it != sequences.end())
+  {
+    std::cout << " " << seq_it->first;
+    ++seq_it;
+  }
+  std::cout << '\n';
+
+  size_t max_len = 0;
+  for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
+  {
+    size_t len = 0;
+    for (auto nit = it->second.cbegin(); nit != it->second.cend(); ++nit)
+    {
+      ++len;
+    }
+    if (len > max_len)
+    {
+      max_len = len;
+    }
+  }
+
   return 0;
 }
