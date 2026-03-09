@@ -251,6 +251,33 @@ namespace vasyakin
     fake_node->next = fake_node;
     size = 0;
   }
+
+  template< class T >
+  List< T >::List(const List& other):
+    size(0)
+  {
+    fake_node = new Node< T >(T{});
+    fake_node->next = fake_node;
+    
+    if (other.fake_node->next == other.fake_node)
+    {
+      return;
+    }
+    
+    Node< T >* other_cur = other.fake_node->next;
+    Node< T >* prev = fake_node;
+    
+    while (other_cur != other.fake_node)
+    {
+      Node< T >* new_node = new Node< T >(other_cur->val);
+      prev->next = new_node;
+      prev = new_node;
+      other_cur = other_cur->next;
+      ++size;
+    }
+    prev->next = fake_node;
+  }
+
 }
 
 #endif
