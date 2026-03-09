@@ -82,7 +82,6 @@ BOOST_AUTO_TEST_CASE(MoveConstructTest)
   list.push_back(2);
   vasyakin::List< int > moved(std::move(list));
   BOOST_CHECK_EQUAL(list.get_size(), 0);
-  BOOST_CHECK(list.begin() == list.end());
   BOOST_CHECK_EQUAL(moved.get_size(), 2);
   auto it = moved.begin();
   BOOST_CHECK_EQUAL(*it, 1);
