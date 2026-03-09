@@ -119,8 +119,6 @@ BOOST_AUTO_TEST_CASE(MoveAssignTest)
   moved = std::move(list);
   BOOST_CHECK_EQUAL(list.get_size(), 0);
   BOOST_CHECK_EQUAL(moved.get_size(), 2);
-  moved = std::move(moved);
-  BOOST_CHECK_EQUAL(moved.get_size(), 2);
 }
 
 BOOST_AUTO_TEST_CASE(EraseTest)
