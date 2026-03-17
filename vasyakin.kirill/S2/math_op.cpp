@@ -189,3 +189,32 @@ long long mod(long long a, long long b)
     return (a % b + b) % b;
   }
 }
+
+long long vasyakin::calculate(long long a, long long b, const std::string& op)
+{
+  if (op == "+")
+  {
+    return sum(a, b);
+  }
+  if (op == "-")
+  {
+    return subtract(a, b);
+  }
+  if (op == "*")
+  {
+    return multiply(a, b);
+  }
+  if (op == "/")
+  {
+    return divide(a, b);
+  }
+  if (op == "%")
+  {
+    return mod(a, b);
+  }
+  if (op == "lcm")
+  {
+    return lcm(a, b);
+  }
+  throw std::runtime_error("Unknown operator: " + op);
+}
