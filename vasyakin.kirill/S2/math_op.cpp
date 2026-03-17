@@ -6,6 +6,9 @@
 #include <string>
 #include <cmath>
 
+const long long MAX = std::numeric_limits< long long >::max();
+const long long MIN = std::numeric_limits< long long >::min();
+
 bool vasyakin::isNumber(const std::string& s)
 {
   if (s.empty())
