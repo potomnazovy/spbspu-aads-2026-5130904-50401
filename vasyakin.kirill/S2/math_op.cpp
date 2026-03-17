@@ -14,7 +14,7 @@ bool vasyakin::isNumber(const std::string& s)
   }
 
   size_t start = 0;
-  
+
   if (s[start] == '-')
   {
     if (s.length() == 1)
@@ -74,7 +74,7 @@ int vasyakin::getPrecedence(const std::string& op)
   {
     return 1;
   }
-  return 0;  
+  return 0;
 }
 
 long long gcd(long long a, long long b)

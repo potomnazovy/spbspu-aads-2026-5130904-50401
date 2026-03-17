@@ -16,7 +16,7 @@ namespace vasyakin
   public:
     explicit Node(const T& value);
   };
-  
+
   template< class T >
   Node< T >::Node(const T& value):
     val(value),
