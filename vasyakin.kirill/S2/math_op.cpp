@@ -218,3 +218,148 @@ long long vasyakin::calculate(long long a, long long b, const std::string& op)
   }
   throw std::runtime_error("Unknown operator: " + op);
 }
+
+Queue< std::string > infixToPostfix(const std::string& line)
+{
+  Stack< std::string > opStack;
+  Queue< std::string > postfix;
+
+  std::string token;
+
+  for (size_t i = 0; i < line.length(); ++i)
+  {
+    if (line[i] == ' ')
+    {
+      if (!token.empty())
+      {
+        if (isNumber(token))
+        {
+          postfix.push(token);
+        }
+        else if (token == "(")
+        {
+          opStack.push(token);
+        }
+        else if (token == ")")
+        {
+          while (!opStack.empty() && opStack.peek() != "(")
+          {
+            postfix.push(opStack.drop());
+          }
+          if (opStack.empty())
+          {
+            throw std::runtime_error("Mismatched parentheses");
+          }
+          opStack.drop();
+        }
+        else if (isOperator(token))
+        {
+          while (!opStack.empty() && opStack.peek() != "(" && getPrecedence(opStack.peek()) >= getPrecedence(token))
+          {
+            postfix.push(opStack.drop());
+          }
+          opStack.push(token);
+        }
+        else
+        {
+          throw std::runtime_error("Invalid token: " + token);
+        }
+        token.clear();
+      }
+    }
+    else
+    {
+      token += line[i];
+    }
+  }
+
+  if (!token.empty())
+  {
+    if (isNumber(token))
+    {
+      postfix.push(token);
+    }
+    else if (token == "(")
+    {
+      opStack.push(token);
+    }
+    else if (token == ")")
+    {
+      while (!opStack.empty() && opStack.peek() != "(")
+      {
+        postfix.push(opStack.drop());
+      }
+      if (opStack.empty())
+      {
+        throw std::runtime_error("Mismatched parentheses");
+      }
+      opStack.drop();
+    }
+    else if (isOperator(token))
+    {
+      while (!opStack.empty() && opStack.peek() != "(" && getPrecedence(opStack.peek()) >= getPrecedence(token))
+      {
+        postfix.push(opStack.drop());
+      }
+      opStack.push(token);
+    }
+    else
+    {
+      throw std::runtime_error("Invalid token: " + token);
+    }
+  }
+  while (!opStack.empty())
+  {
+    std::string op = opStack.drop();
+    if (op == "(" || op == ")")
+    {
+      throw std::runtime_error("Mismatched parentheses");
+    }
+    postfix.push(op);
+  }
+  return postfix;
+}
+
+long long evaluatePostfix(Queue< std::string >& postfix)
+{
+  Stack< long long > temp;
+
+  while (!postfix.empty())
+  {
+    std::string token = postfix.drop();
+
+    if (isNumber(token))
+    {
+      temp.push(std::stoll(token));
+    }
+    else if (isOperator(token))
+    {
+      if (temp.size() < 2)
+      {
+        throw std::runtime_error("Invalid expression: not enough operands");
+      }
+
+      long long b = temp.drop();
+      long long a = temp.drop();
+      long long res = calculate(a, b, token);
+      temp.push(res);
+    }
+    else
+    {
+      throw std::runtime_error("Invalid token in evaluation: " + token);
+    }
+  }
+
+  if (temp.size() != 1)
+  {
+    throw std::runtime_error("Invalid expression: stack not empty");
+  }
+
+  return temp.drop();
+}
+
+long long evaluateExpression(const std::string& line)
+{
+  Queue< std::string > postfix = infixToPostfix(line);
+  return evaluatePostfix(postfix);
+}
