@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <string>
+#include <cmath>
 
 bool vasyakin::isNumber(const std::string& s)
 {
