@@ -58,6 +58,11 @@ int main(int argc, char** argv)
     return 1;
   }
 
+  if (results.empty())
+  {
+    return 0;
+  }
+
   bool first = true;
   while (!results.empty())
   {
@@ -68,10 +73,7 @@ int main(int argc, char** argv)
     std::cout << results.drop();
     first = false;
   }
-  if (!first)
-  {
-    std::cout << '\n';
-  }
+  std::cout << '\n';
 
   return 0;
 }
