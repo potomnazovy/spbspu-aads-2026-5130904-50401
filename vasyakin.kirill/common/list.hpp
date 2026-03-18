@@ -1,15 +1,15 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 #include "iterators.hpp"
-#include "node.hpp"
 #include <cstddef>
 #include <utility>
 #include <limits>
 
 namespace vasyakin
 {
-  const size_t MAX = std::numeric_limits< size_t >::max();
 
+  const size_t MAX = std::numeric_limits< size_t >::max();
+  
   template< class T >
   class List
   {
@@ -264,4 +264,5 @@ namespace vasyakin
     return fake_node->next;
   }
 }
+
 #endif

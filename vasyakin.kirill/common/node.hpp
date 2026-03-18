@@ -1,6 +1,10 @@
 #ifndef NODE_HPP
 #define NODE_HPP
 
+template< class T > class List;
+template< class T > class LIter;
+template< class T > class LCIter;
+
 namespace vasyakin
 {
   template< class T >
