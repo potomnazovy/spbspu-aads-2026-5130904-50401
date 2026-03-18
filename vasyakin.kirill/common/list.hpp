@@ -9,7 +9,7 @@ namespace vasyakin
 {
 
   const size_t MAX = std::numeric_limits< size_t >::max();
-  
+
   template< class T >
   class List
   {
