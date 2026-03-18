@@ -7,7 +7,7 @@
 
 namespace vasyakin
 {
-  
+
   template< class T >
   class List
   {
