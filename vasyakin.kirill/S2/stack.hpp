@@ -10,53 +10,62 @@ namespace vasyakin
   class Stack
   {
   public:
-    void push(T rhs);
-    T drop();
-    T peek() const;
-    bool empty() const;
-    size_t size() const;
+    void push(const T& value);
+    void drop();
+    T& top();
+    const T& top() const;
+    bool empty() const noexcept;
+    size_t size() const noexcept;
   private:
-    vasyakin::List< T > list;
+    vasyakin::List< T > list_;
   };
 
   template< class T >
-  T Stack< T >::peek() const
+  void Stack< T >::push(const T& value)
   {
-    if (list.get_size() == 0)
-    {
-      throw std::runtime_error("Stack is empty");
-    }
-    return *list.begin();
+    list_.insert(list_.begin(), value);
   }
 
   template< class T >
-  void Stack< T >::push(T rhs)
+  void Stack< T >::drop()
   {
-    list.insert(list.get_fake(), rhs);
-  }
-
-  template< class T >
-  T Stack< T >::drop()
-  {
-    if (list.get_size() == 0)
+    if (list_.getSize() == 0)
     {
       throw std::runtime_error ("Stack is empty");
     }
-    T val = *list.begin();
-    list.erase(list.get_fake());
-    return val;
+    list_.erase(list_.begin());
   }
 
   template< class T >
-  bool Stack< T >::empty() const
+  bool Stack< T >::empty() const noexcept
   {
-    return list.get_size() == 0;
+    return list_.getSize() == 0;
   }
 
   template< class T >
-  size_t Stack< T >::size() const
+  T& Stack< T >::top()
   {
-    return list.get_size();
+    if (list_.getSize() == 0)
+    {
+      throw std::runtime_error("Stack is empty");
+    }
+    return *list_.begin();
+  }
+
+  template< class T >
+  const T& Stack< T >::top() const
+  {
+    if (list_.getSize() == 0)
+    {
+      throw std::runtime_error("Stack is empty");
+    }
+    return *list_.begin();
+  }
+
+  template< class T >
+  size_t Stack< T >::size() const noexcept
+  {
+    return list_.getSize();
   }
 }
 

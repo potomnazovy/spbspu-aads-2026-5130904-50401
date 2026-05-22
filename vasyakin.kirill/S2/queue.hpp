@@ -11,53 +11,62 @@ namespace vasyakin
   class Queue
   {
   public:
-    void push(T rhs);
-    T drop();
-    T peek() const;
-    bool empty() const;
-    size_t size() const;
+    void push(const T& value);
+    void pop();
+    T& front();
+    const T& front() const;
+    bool empty() const noexcept;
+    size_t size() const noexcept;
   private:
-    vasyakin::List< T > list;
+    vasyakin::List< T > list_;
   };
 
   template< class T >
-  T Queue< T >::peek() const
+  void Queue< T >::push(const T& value)
   {
-    if (list.get_size() == 0)
+    list_.pushBack(value);
+  }
+
+  template< class T >
+  void Queue< T >::pop()
+  {
+    if (list_.getSize() == 0)
     {
       throw std::runtime_error("Queue is empty");
     }
-    return *list.begin();
+    list_.erase(list_.begin());
   }
 
   template< class T >
-  void Queue< T >::push(T rhs)
+  T& Queue< T >::front()
   {
-    list.push_back(rhs);
-  }
-
-  template< class T >
-  T Queue< T >::drop()
-  {
-    if (list.get_size() == 0)
+    if (list_.getSize() == 0)
     {
       throw std::runtime_error("Queue is empty");
     }
-    T val = *list.begin();
-    list.erase(list.get_fake());
-    return val;
+    return *list_.begin();
   }
 
   template< class T >
-  bool Queue< T >::empty() const
+  const T& Queue< T >::front() const
   {
-    return list.get_size() == 0;
+    if (list_.getSize() == 0)
+    {
+      throw std::runtime_error("Queue is empty");
+    }
+    return *list_.begin();
   }
 
   template< class T >
-  size_t Queue< T >::size() const
+  bool Queue< T >::empty() const noexcept
   {
-    return list.get_size();
+    return list_.getSize() == 0;
+  }
+
+  template< class T >
+  size_t Queue< T >::size() const noexcept
+  {
+    return list_.getSize();
   }
 }
 
