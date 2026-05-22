@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
-#include "stack.hpp"
 #include <string>
+#include "stack.hpp"
 
 BOOST_AUTO_TEST_SUITE(StackTests)
 
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(stack_empty_and_size)
 
 BOOST_AUTO_TEST_CASE(stack_with_strings)
 {
-  vasyakin::Stack<std::string> stack;
+  vasyakin::Stack< std::string > stack;
 
   stack.push("hello");
   stack.push("world");

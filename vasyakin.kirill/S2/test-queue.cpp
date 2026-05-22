@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
-#include "queue.hpp"
 #include <string>
+#include "queue.hpp"
 
 BOOST_AUTO_TEST_SUITE(QueueTests)
 
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(queue_empty_and_size)
 
 BOOST_AUTO_TEST_CASE(queue_with_strings)
 {
-  vasyakin::Queue<std::string> queue;
+  vasyakin::Queue< std::string > queue;
 
   queue.push("first");
   queue.push("second");

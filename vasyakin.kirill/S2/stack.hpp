@@ -1,6 +1,6 @@
 #ifndef STACK_HPP
 #define STACK_HPP
-#include "../common/list.hpp"
+#include "list.hpp"
 #include <cstddef>
 #include <stdexcept>
 
@@ -9,14 +9,14 @@ namespace vasyakin
   template< class T >
   class Stack
   {
-  private:
-    vasyakin::List< T > list;
   public:
     void push(T rhs);
     T drop();
     T peek() const;
     bool empty() const;
     size_t size() const;
+  private:
+    vasyakin::List< T > list;
   };
 
   template< class T >
