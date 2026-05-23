@@ -4,7 +4,6 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
-#include "stack.hpp"
 
 bool vasyakin::isOperation(const std::string& s)
 {
@@ -72,7 +71,7 @@ long long vasyakin::lcm(long long a, long long b)
   long long abs_a = std::abs(a);
   long long abs_b = std::abs(b);
 
-  if (abs_a / g > vasyakin::max / abs_b)
+  if (abs_a / g > vasyakin::maxLL / abs_b)
   {
     throw std::overflow_error("LCM overflow");
   }
@@ -81,7 +80,7 @@ long long vasyakin::lcm(long long a, long long b)
 
 long long vasyakin::sum(long long a, long long b)
 {
-  if (b > 0 && a > vasyakin::max - b)
+  if (b > 0 && a > vasyakin::maxLL - b)
   {
     throw std::overflow_error("Sum overflow");
   }
@@ -98,7 +97,7 @@ long long vasyakin::subtract(long long a, long long b)
   {
     throw std::overflow_error("Subtract underflow");
   }
-  else if (b < 0 && a > vasyakin::max + b)
+  else if (b < 0 && a > vasyakin::maxLL + b)
   {
     throw std::overflow_error("Subtract overflow");
   }
@@ -114,7 +113,7 @@ long long vasyakin::multiply(long long a, long long b)
 
   if (a > 0)
   {
-    if (b > 0 && a > vasyakin::max / b)
+    if (b > 0 && a > vasyakin::maxLL / b)
     {
       throw std::overflow_error("Mult overflow");
     }
@@ -129,7 +128,7 @@ long long vasyakin::multiply(long long a, long long b)
     {
       throw std::overflow_error("Mult underflow");
     }
-    else if (b < 0 && a < vasyakin::max / b)
+    else if (b < 0 && a < vasyakin::maxLL / b)
     {
       throw std::overflow_error("Mult overflow");
     }

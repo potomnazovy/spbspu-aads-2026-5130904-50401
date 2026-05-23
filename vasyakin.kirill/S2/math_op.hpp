@@ -22,7 +22,7 @@ namespace vasyakin
   long long evaluatePostfix(Queue< std::string >& postfix);
   long long evaluateExpression(const std::string& line);
   const long long min = std::numeric_limits< long long >::min();
-  const long long max = std::numeric_limits< long long >::max();
+  const long long maxLL = std::numeric_limits< long long >::max();
 }
 
 #endif
