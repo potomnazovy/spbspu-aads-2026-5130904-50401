@@ -6,12 +6,15 @@
 #include <limits>
 #include <memory>
 #include <functional>
+#include <type_traits>
+#include <new>
 
 namespace vasyakin
 {
   namespace detail
   {
     template< class T > class Node;
+    struct FakeTag {};
   }
 
   template< class T > class List;
@@ -60,11 +63,21 @@ namespace vasyakin
     class Node
     {
     public:
-      explicit Node(const T& value);
+      explicit Node(FakeTag) noexcept;
+
+      template< class... Args >
+      explicit Node(Args&&... args)
+        noexcept(std::is_nothrow_constructible< T, Args... >::value);
+
+      void destroyValue() noexcept;
+
+      T& value() noexcept;
+      const T& value() const noexcept;
 
     private:
-      T val_;
+      alignas(T) unsigned char storage_[sizeof(T)];
       Node< T >* next_;
+
       friend class List< T >;
       friend class LIter< T >;
       friend class LCIter< T >;
@@ -101,15 +114,26 @@ namespace vasyakin
     void splice_after(LIter< T > pos, List& other, LIter< T > first, LIter< T > last) noexcept;
 
     void merge(List& other) noexcept;
+
     template< class Compare >
     void merge(List& other, Compare comp) noexcept;
 
     void sort();
+
     template< class Compare >
     void sort(Compare comp);
 
     template< class P >
     LIter< T > partition(P p);
+
+    template< class... Args >
+    LIter< T > emplace_front(Args&&... args);
+
+    template< class... Args >
+    LIter< T > emplace_after(LIter< T > pos, Args&&... args);
+
+    template< class... Args >
+    LIter< T > emplace_back(Args&&... args);
 
     LIter< T > begin() noexcept;
     LIter< T > end() noexcept;
@@ -124,6 +148,9 @@ namespace vasyakin
   private:
     detail::Node< T >* fake_node_;
     size_t size_;
+
+    detail::Node< T >* createFakeNode();
+    void destroyFakeNode(detail::Node< T >* node) noexcept;
   };
 
   template< class T >
@@ -134,25 +161,25 @@ namespace vasyakin
   template< class T >
   T& LIter< T >::operator*() noexcept
   {
-    return ptr_->val_;
+    return ptr_->value();
   }
 
   template< class T >
   T* LIter< T >::operator->() noexcept
   {
-    return std::addressof(ptr_->val_);
+    return std::addressof(ptr_->value());
   }
 
   template< class T >
   const T& LIter< T >::operator*() const noexcept
   {
-    return ptr_->val_;
+    return ptr_->value();
   }
 
   template< class T >
   const T* LIter< T >::operator->() const noexcept
   {
-    return std::addressof(ptr_->val_);
+    return std::addressof(ptr_->value());
   }
 
   template< class T >
@@ -195,13 +222,13 @@ namespace vasyakin
   template< class T >
   const T& LCIter< T >::operator*() const noexcept
   {
-    return ptr_->val_;
+    return ptr_->value();
   }
 
   template< class T >
   const T* LCIter< T >::operator->() const noexcept
   {
-    return std::addressof(ptr_->val_);
+    return std::addressof(ptr_->value());
   }
 
   template< class T >
@@ -232,26 +259,48 @@ namespace vasyakin
   }
 
   template< class T >
-  detail::Node< T >::Node(const T& value):
-    val_(value),
+  detail::Node< T >::Node(FakeTag) noexcept:
     next_(nullptr)
   {}
 
   template< class T >
-  List< T >::List():
-    fake_node_(new detail::Node< T >(T{})),
-    size_(0)
+  template< class... Args >
+  detail::Node< T >::Node(Args&&... args)
+    noexcept(std::is_nothrow_constructible< T, Args... >::value):
+    next_(nullptr)
   {
-    fake_node_->next_ = fake_node_;
+    new (storage_) T(std::forward< Args >(args)...);
   }
 
   template< class T >
+  void detail::Node< T >::destroyValue() noexcept
+  {
+    reinterpret_cast< T* >(storage_)->~T();
+  }
+
+  template< class T >
+  T& detail::Node< T >::value() noexcept
+  {
+    return *reinterpret_cast< T* >(storage_);
+  }
+
+  template< class T >
+  const T& detail::Node< T >::value() const noexcept
+  {
+    return *reinterpret_cast< const T* >(storage_);
+  }
+
+  template< class T >
+  List< T >::List():
+    fake_node_(createFakeNode()),
+    size_(0)
+  {}
+
+  template< class T >
   List< T >::List(const List& other):
-    fake_node_(new detail::Node< T >(T{})),
+    fake_node_(createFakeNode()),
     size_(0)
   {
-    fake_node_->next_ = fake_node_;
-
     try
     {
       for (auto it = other.cbegin(); it != other.cend(); ++it)
@@ -262,7 +311,7 @@ namespace vasyakin
     catch (...)
     {
       clear();
-      delete fake_node_;
+      destroyFakeNode(fake_node_);
       fake_node_ = nullptr;
       throw;
     }
@@ -276,18 +325,16 @@ namespace vasyakin
 
   template< class T >
   List< T >::List(const T& value):
-    fake_node_(new detail::Node< T >(T{})),
+    fake_node_(createFakeNode()),
     size_(0)
   {
-    fake_node_->next_ = fake_node_;
-
     try
     {
-      pushBack((value));
+      pushBack(value);
     }
     catch (...)
     {
-      delete fake_node_;
+      destroyFakeNode(fake_node_);
       fake_node_ = nullptr;
       throw;
     }
@@ -295,18 +342,16 @@ namespace vasyakin
 
   template< class T >
   List< T >::List(T&& value):
-    fake_node_(new detail::Node< T >(T{})),
+    fake_node_(createFakeNode()),
     size_(0)
   {
-    fake_node_->next_ = fake_node_;
-
     try
     {
       pushBack(std::forward< T >(value));
     }
     catch (...)
     {
-      delete fake_node_;
+      destroyFakeNode(fake_node_);
       fake_node_ = nullptr;
       throw;
     }
@@ -316,7 +361,7 @@ namespace vasyakin
   List< T >::~List() noexcept
   {
     clear();
-    delete fake_node_;
+    destroyFakeNode(fake_node_);
     fake_node_ = nullptr;
   }
 
@@ -354,39 +399,13 @@ namespace vasyakin
   template< class T >
   LIter< T > List< T >::insert(LIter< T > it, const T& value)
   {
-    detail::Node< T >* new_node = new detail::Node< T >(value);
-
-    if (fake_node_->next_ == fake_node_)
-    {
-      new_node->next_ = fake_node_;
-      fake_node_->next_ = new_node;
-    }
-    else
-    {
-      new_node->next_ = it.ptr_->next_;
-      it.ptr_->next_ = new_node;
-    }
-    ++size_;
-    return LIter< T >(new_node);
+    return emplace_after(it, value);
   }
 
   template< class T >
   LIter< T > List< T >::insert(LIter< T > it, T&& value)
   {
-    detail::Node< T >* new_node = new detail::Node< T >(std::forward< T >(value));
-
-    if (fake_node_->next_ == fake_node_)
-    {
-      new_node->next_ = fake_node_;
-      fake_node_->next_ = new_node;
-    }
-    else
-    {
-      new_node->next_ = it.ptr_->next_;
-      it.ptr_->next_ = new_node;
-    }
-    ++size_;
-    return LIter< T >(new_node);
+    return emplace_after(it, std::forward< T >(value));
   }
 
   template< class T >
@@ -398,6 +417,8 @@ namespace vasyakin
     }
     detail::Node< T >* to_delete = it.ptr_->next_;
     it.ptr_->next_ = to_delete->next_;
+
+    to_delete->destroyValue();
     delete to_delete;
     --size_;
     return it;
@@ -406,23 +427,13 @@ namespace vasyakin
   template< class T >
   void List< T >::pushBack(const T& value)
   {
-    detail::Node< T >* last = fake_node_;
-    while (last->next_ != fake_node_)
-    {
-      last = last->next_;
-    }
-    insert(LIter< T >(last), (value));
+    emplace_back(value);
   }
 
   template< class T >
   void List< T >::pushBack(T&& value)
   {
-    detail::Node< T >* last = fake_node_;
-    while (last->next_ != fake_node_)
-    {
-      last = last->next_;
-    }
-    insert(LIter< T >(last), std::forward< T >(value));
+    emplace_back(std::forward< T >(value));
   }
 
   template< class T >
@@ -501,7 +512,7 @@ namespace vasyakin
     while (prev.ptr_->next_ != other.fake_node_)
     {
       while (curr.ptr_->next_ != fake_node_ &&
-        comp(curr.ptr_->next_->val_, prev.ptr_->next_->val_))
+        comp(curr.ptr_->next_->value(), prev.ptr_->next_->value()))
       {
         ++curr;
       }
@@ -563,7 +574,7 @@ namespace vasyakin
 
     while (curr.ptr_->next_ != fake_node_)
     {
-      if (!p(curr.ptr_->next_->val_))
+      if (!p(curr.ptr_->next_->value()))
       {
         false_list.splice_after(false_tail, *this, curr);
         ++false_tail;
@@ -576,6 +587,48 @@ namespace vasyakin
 
     splice_after(curr, false_list);
     return (curr.ptr_->next_ == fake_node_) ? end() : LIter< T >(curr.ptr_->next_);
+  }
+
+  template< class T >
+  template< class... Args >
+  LIter< T > List< T >::emplace_front(Args&&... args)
+  {
+    return emplace_after(end(), std::forward< Args >(args)...);
+  }
+
+  template< class T >
+  template< class... Args >
+  LIter< T > List< T >::emplace_after(LIter< T > pos, Args&&... args)
+  {
+    detail::Node< T >* new_node = new detail::Node< T >(std::forward< Args >(args)...);
+
+    if (fake_node_->next_ == fake_node_)
+    {
+      new_node->next_ = fake_node_;
+      fake_node_->next_ = new_node;
+    }
+    else
+    {
+      new_node->next_ = pos.ptr_->next_;
+      pos.ptr_->next_ = new_node;
+    }
+    ++size_;
+
+    return LIter< T >(new_node);
+  }
+
+  template< class T >
+  template< class... Args >
+  LIter< T > List< T >::emplace_back(Args&&... args)
+  {
+    detail::Node< T >* last = fake_node_;
+
+    while (last->next_ != fake_node_)
+    {
+      last = last->next_;
+    }
+
+    return emplace_after(LIter< T >(last), std::forward< Args >(args)...);
   }
 
   template< class T >
@@ -630,13 +683,33 @@ namespace vasyakin
   template< class T >
   T& List< T >::front() noexcept
   {
-    return fake_node_->next_->val_;
+    return fake_node_->next_->value();
   }
 
   template< class T >
   const T& List< T >::front() const noexcept
   {
-    return fake_node_->next_->val_;
+    return fake_node_->next_->value();
+  }
+
+  template< class T >
+  detail::Node< T >* List< T >::createFakeNode()
+  {
+    void* mem = ::operator new(sizeof(detail::Node< T >));
+    detail::Node< T >* node = new (mem) detail::Node< T >(detail::FakeTag{});
+    node->next_ = node;
+
+    return node;
+  }
+
+  template< class T >
+  void List< T >::destroyFakeNode(detail::Node< T >* node) noexcept
+  {
+    if (node)
+    {
+      node->~Node();
+      ::operator delete(node);
+    }
   }
 }
 
