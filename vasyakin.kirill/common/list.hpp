@@ -17,13 +17,32 @@ namespace vasyakin
     struct FakeTag {};
   }
 
-  template< class T > class List;
+  template< class T >
+  class List;
+
+  template< class T >
+  class LIter;
+
+  template< class T >
+  class LCIter;
+
+  template< class Key, class Value, class Hash, class Equal >
+  class HashTable;
+
+  template< class Key, class Value, class Hash, class Equal >
+  class HashIter;
+
+  template< class Key, class Value, class Hash, class Equal >
+  class HashConstIter;
+
   const size_t max = std::numeric_limits< size_t >::max();
 
   template< class T >
   class LIter
   {
   public:
+    LIter() noexcept;
+
     T& operator*() noexcept;
     T* operator->() noexcept;
     const T& operator*() const noexcept;
@@ -37,12 +56,25 @@ namespace vasyakin
     friend class List< T >;
     detail::Node< T >* ptr_;
     explicit LIter(detail::Node< T >* p) noexcept;
+
+    LIter(const LCIter< T >& other) noexcept;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashIter;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashConstIter;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashTable;
   };
 
   template< class T >
   class LCIter
   {
   public:
+    LCIter() noexcept;
+
     const T& operator*() const noexcept;
     const T* operator->() const noexcept;
     LCIter& operator++() noexcept;
@@ -55,6 +87,17 @@ namespace vasyakin
     const detail::Node< T >* ptr_;
     explicit LCIter(const detail::Node< T >* p) noexcept;
     explicit LCIter(const LIter< T >& it) noexcept;
+
+    friend class LIter< T >;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashIter;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashConstIter;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashTable;
   };
 
   namespace detail
@@ -73,7 +116,6 @@ namespace vasyakin
 
       T& value() noexcept;
       const T& value() const noexcept;
-
     private:
       alignas(T) unsigned char storage_[sizeof(T)];
       Node< T >* next_;
@@ -81,6 +123,15 @@ namespace vasyakin
       friend class List< T >;
       friend class LIter< T >;
       friend class LCIter< T >;
+
+      template< class Key, class Value, class Hash, class Equal >
+      friend class ::vasyakin::HashTable;
+
+      template< class Key, class Value, class Hash, class Equal >
+      friend class ::vasyakin::HashIter;
+
+      template< class Key, class Value, class Hash, class Equal >
+      friend class ::vasyakin::HashConstIter;
     };
   }
 
@@ -93,8 +144,7 @@ namespace vasyakin
     List(List&& other) noexcept;
 
     explicit List(const T& value);
-    explicit List(T&& value);
-
+    List(T&& value);
     ~List() noexcept;
     List& operator=(const List& other);
     List& operator=(List&& other) noexcept;
@@ -102,11 +152,13 @@ namespace vasyakin
     LIter< T > insert(LIter< T > it, const T& value);
     LIter< T > insert(LIter< T > it, T&& value);
 
+    LIter< T > erase(LIter< T > it) noexcept;
+
     void pushBack(const T& value);
     void pushBack(T&& value);
 
-    LIter< T > erase(LIter< T > it) noexcept;
     void swap(List& other) noexcept;
+
     void clear() noexcept;
 
     void splice_after(LIter< T > pos, List& other) noexcept;
@@ -143,19 +195,43 @@ namespace vasyakin
     LCIter< T > cend() const noexcept;
 
     size_t size() const noexcept;
+
     T& front() noexcept;
     const T& front() const noexcept;
+
+    template< class P >
+    bool erase_if(P p);
+
   private:
     detail::Node< T >* fake_node_;
     size_t size_;
 
     detail::Node< T >* createFakeNode();
     void destroyFakeNode(detail::Node< T >* node) noexcept;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashTable;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashIter;
+
+    template< class Key, class Value, class Hash, class Equal >
+    friend class HashConstIter;
   };
+
+  template< class T >
+  LIter< T >::LIter() noexcept:
+    ptr_(nullptr)
+  {}
 
   template< class T >
   LIter< T >::LIter(detail::Node< T >* p) noexcept:
     ptr_(p)
+  {}
+
+  template< class T >
+  LIter< T >::LIter(const LCIter< T >& other) noexcept:
+    ptr_(const_cast< detail::Node< T >* >(other.ptr_))
   {}
 
   template< class T >
@@ -208,6 +284,11 @@ namespace vasyakin
   {
     return ptr_ != other.ptr_;
   }
+
+  template< class T >
+  LCIter< T >::LCIter() noexcept:
+    ptr_(nullptr)
+  {}
 
   template< class T >
   LCIter< T >::LCIter(const detail::Node< T >* p) noexcept:
@@ -460,7 +541,8 @@ namespace vasyakin
   }
 
   template< class T >
-  void List< T >::splice_after(LIter< T > pos, List& other, LIter< T > first, LIter< T > last) noexcept
+  void List< T >::splice_after(
+    LIter< T > pos, List& other, LIter< T > first, LIter< T > last) noexcept
   {
     if (std::addressof(other) == this)
     {
@@ -693,7 +775,8 @@ namespace vasyakin
   }
 
   template< class T >
-  detail::Node< T >* List< T >::createFakeNode()
+  typename detail::Node< T >*
+  List< T >::createFakeNode()
   {
     void* mem = ::operator new(sizeof(detail::Node< T >));
     detail::Node< T >* node = new (mem) detail::Node< T >(detail::FakeTag{});
@@ -710,6 +793,31 @@ namespace vasyakin
       node->~Node();
       ::operator delete(node);
     }
+  }
+
+  template< class T >
+  template< class P >
+  bool List< T >::erase_if(P p)
+  {
+    bool was_erased = false;
+    detail::Node< T >* prev = fake_node_;
+    detail::Node< T >* curr = prev->next_;
+
+    while (curr != fake_node_)
+    {
+      if (p(curr->value()))
+      {
+        erase(LIter< T >(prev));
+        curr = prev->next_;
+        was_erased = true;
+      }
+      else
+      {
+        prev = curr;
+        curr = curr->next_;
+      }
+    }
+    return was_erased;
   }
 }
 
